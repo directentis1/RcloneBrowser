@@ -1,0 +1,37 @@
+name: releases rclone-browser for ubuntu 20.04 amd64
+on:
+  release:
+    types: [created]
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Install dependencies
+        shell: bash
+        run: |
+          sudo apt update 
+          sudo apt -y install git g++ cmake make qtdeclarative5-dev libqt5svg5-dev
+          
+      - name: Checkout Source code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Build
+        id: build
+        shell: bash
+        run: |
+          mkdir build && cd build
+          cmake -DCMAKE_BUILD_TYPE=Release ..
+          make
+          cpack -G DEB
+          packageName=$(ls rclone-browser-*.deb)
+          echo "::set-output name=packageName::$packageName"
+          
+      - name: Upload the artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ steps.build.outputs.packageName }}
+          path: ${{ steps.build.outputs.packageName }}
+          
