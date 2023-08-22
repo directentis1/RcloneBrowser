@@ -1,0 +1,45 @@
+name: releases rclone-browser for ubuntu
+on:
+  release:
+    types: [created]
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Install dependencies
+        shell: bash
+        run: |
+          sudo apt update 
+          sudo apt -y install git g++ cmake make qtdeclarative5-dev
+          
+      - name: Checkout Source code
+        if: github.event_name == 'push'
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Checkout Source code
+        if: github.event_name == 'pull_request'
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha }}
+          
+      - name: Build
+        id: build
+        shell: bash
+        run: |
+          mkdir build && cd build
+          cmake ..
+          make
+          
+      - name: Upload the artifacts
+        uses: actions/upload-artifact@v3
+        # env:
+        # GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          name: ${{ steps.build.outputs.packageName }}
+          path: ${{ steps.build.outputs.packageName }}
+          # args: 'rclone-browser-*'
+          
