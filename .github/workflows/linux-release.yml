@@ -1,4 +1,4 @@
-name: releases rclone-browser for ubuntu 20.04 amd64
+name: rclone-browser for ubuntu 20.04 amd64
 on:
   release:
     types: [created]
